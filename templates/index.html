@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro YouTube Downloader</title>
+    <link href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css)" rel="stylesheet">
+    <style>
+        body { background-color: #e9ecef; padding-top: 30px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border-radius: 12px; }
+        
+        #console-output {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid #444;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        
+        #console-output::-webkit-scrollbar { width: 8px; }
+        #console-output::-webkit-scrollbar-track { background: #1e1e1e; }
+        #console-output::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4">
+                <h3 class="text-center mb-4 text-danger fw-bold">🚀 YouTube to MP3 Pro</h3>
+                
+                <form id="downloadForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">YouTube URL (คลิปเดี่ยว หรือ Playlist):</label>
+                        <input type="text" class="form-control" id="url" name="url" placeholder="[https://www.youtube.com/](https://www.youtube.com/)..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">โฟลเดอร์ที่ต้องการบันทึก (Save Path):</label>
+                        <input type="text" class="form-control" id="save_path" name="save_path" value="{{ default_path }}" required>
+                        <div class="form-text text-muted">ตัวอย่างที่ถูกต้อง: <code>D:\Music</code> หรือ <code>C:\Users\Name\Downloads</code></div>
+                    </div>
+
+                    <button type="submit" id="btnSubmit" class="btn btn-danger w-100 py-2 fw-bold">เริ่มดาวน์โหลด</button>
+                </form>
+
+                <div id="status-area" style="display:none;">
+                    <div id="console-output"></div>
+                    <div class="text-center mt-2">
+                         <div class="spinner-border text-danger spinner-border-sm" role="status" id="loading-spinner"></div>
+                         <small class="text-muted ms-2" id="status-text">กำลังทำงาน... (ห้ามปิดหน้านี้)</small>
+                    </div>
+                </div>
+
+            </div>
+            <div class="text-center mt-3 text-muted"><small>Powered by Flask & yt-dlp</small></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById('downloadForm');
+    const consoleDiv = document.getElementById('console-output');
+    const statusArea = document.getElementById('status-area');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const statusText = document.getElementById('status-text');
+    const spinner = document.getElementById('loading-spinner');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); 
+
+        btnSubmit.disabled = true;
+        btnSubmit.innerText = "กำลังดำเนินการ...";
+        statusArea.style.display = 'block';
+        consoleDiv.innerHTML = " > เชื่อมต่อกับ Server เบื้องหลัง...\n";
+        statusText.innerText = "กำลังทำงาน... (ห้ามปิดหน้านี้)";
+        statusText.className = "text-muted ms-2";
+        spinner.style.display = 'inline-block';
+
+        const formData = new FormData(form);
+        fetch('/start_download', {
+            method: 'POST',
+            body: formData
+        }).then(response => {
+            startListening(); 
+        });
+    });
+
+    function startListening() {
+        const source = new EventSource("/stream");
+
+        source.onmessage = function(event) {
+            const msg = event.data;
+
+            if (msg === "DONE") {
+                source.close(); 
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "เริ่มดาวน์โหลดลิงก์ใหม่";
+                statusText.innerText = "เสร็จสมบูรณ์!";
+                spinner.style.display = 'none'; 
+                statusText.className = "text-success fw-bold ms-2";
+            } else {
+                consoleDiv.innerHTML += " > " + msg + "\n";
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }
+        };
+
+        source.onerror = function() {
+            source.close();
+        };
+    }
+</script>
+
+</body>
+</html>
