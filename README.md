@@ -24,10 +24,10 @@
     pip install torch torchvision torchaudio --index-url [https://download.pytorch.org/whl/cu121](https://download.pytorch.org/whl/cu121)
 
 3. สั่งรันแอปพลิเคชัน: 
-       ```bash
-        py app.py
+   ```bash
+      py app.py
 
-4. เปิดเบราว์เซอร์แล้วเข้าไปที่: `http://127.0.0.1:5000`
+5. เปิดเบราว์เซอร์แล้วเข้าไปที่: `http://127.0.0.1:5000`
 
 ## ⚙️ การตั้งค่า AI (Configuration)
 หากคอมพิวเตอร์ของคุณมีการ์ดจอที่ VRAM สูงกว่า 4GB หรือต้องการความแม่นยำของภาษาไทยระดับสูงสุด สามารถเข้าไปปรับแก้โมเดล AI ในไฟล์ `app.py` ได้:
