@@ -18,6 +18,8 @@
    ```bash
    pip install -r requirements.txt
 
-2. สั่งรันแอปพลิเคชัน: py app.py
+2. สั่งรันแอปพลิเคชัน:
+   ```bash
+   py app.py
 
 3. เปิดเบราว์เซอร์แล้วเข้าไปที่: `http://127.0.0.1:5000`
